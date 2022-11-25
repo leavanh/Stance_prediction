@@ -31,4 +31,4 @@ passage_embedding = model.encode(grüne_tok)
 similarity = util.dot_score(query_embedding, passage_embedding)
 value, index = torch.topk(similarity, 5)
 with pd.option_context('display.max_colwidth', None):
-    print(manifesto_sentences.iloc[index[0]])
+    print([grüne_tok[i] for i in index.tolist()[0]])
