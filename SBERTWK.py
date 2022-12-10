@@ -9,7 +9,9 @@ import torch
 import random
 
 from transformers import *
+sys.path.append('/home/ubuntu/thesis/stance_prediction/Stance_prediction')
 import SBERTWK_utils
+
 
 
 # -----------------------------------------------
@@ -90,12 +92,14 @@ model.to(params["device"])
 
 # -----------------------------------------------
 
-sentence1 = input("\nEnter the first sentence: ")
-sentence2 = input("Enter the second sentence: ")
+#sentence1 = input("\nEnter the first sentence: ")
+#sentence2 = input("Enter the second sentence: ")
 
-sentences = [sentence1, sentence2]
+#sentences = [sentence1, sentence2]
 
-print("The two sentences we have are:", sentences)
+#print("The two sentences we have are:", sentences)
+
+sentences = grüne_tok
 
 # -----------------------------------------------
 sentences_index = [tokenizer.encode(s, add_special_tokens=True) for s in sentences]
@@ -126,14 +130,14 @@ batch = [batch_input_ids.to(device), batch_input_mask.to(device)]
 inputs = {"input_ids": batch[0], "attention_mask": batch[1]}
 model.zero_grad()
 
-with torch.no_grad():
+with torch.no_grad(): #TODO fix this problem
     features = model(**inputs)[1]
 
 # Reshape features from list of (batch_size, seq_len, hidden_dim) for each hidden state to list
 # of (num_hidden_states, seq_len, hidden_dim) for each element in the batch.
 all_layer_embedding = torch.stack(features).permute(1, 0, 2, 3).cpu().numpy()
 
-embed_method = utils.generate_embedding(params["embed_method"], features_mask)
+embed_method = SBERTWK_utils.generate_embedding(params["embed_method"], features_mask)
 embedding = embed_method.embed(params, all_layer_embedding)
 
 similarity = (
