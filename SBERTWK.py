@@ -8,7 +8,7 @@ import argparse
 import torch
 import random
 
-from transformers import *
+from transformers import AutoConfig, AutoTokenizer, AutoModelWithLMHead
 sys.path.append('/home/ubuntu/thesis/stance_prediction/Stance_prediction')
 import SBERTWK_utils
 
@@ -73,7 +73,7 @@ args.device = device
 # Set seed
 set_seed(args)
 # Set up logger
-lg.basicConfig(format="%(asctime)s : %(message)s", level=logging.DEBUG)
+lg.basicConfig(format="%(asctime)s : %(message)s", level=lg.DEBUG)
 
 # -----------------------------------------------
 # Set Model

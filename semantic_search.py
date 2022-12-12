@@ -34,17 +34,17 @@ def sBERT(query: str, manifesto: list, topk: int = 5) -> list:
 
 
 # read all manifestos and split into sentences
-grüne = pd.read_excel(r'stance_prediction/Stance_prediction/Wahlprogramme/grüne 2021.xlsx')['text']
+grüne = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/grüne 2021.xlsx')['text']
 grüne_tok = get_sent_list(grüne)
-fdp = pd.read_excel(r'stance_prediction/Stance_prediction/Wahlprogramme/fdp 2021.xlsx')['text']
+fdp = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/fdp 2021.xlsx')['text']
 fdp_tok = get_sent_list(fdp)
-linke = pd.read_excel(r'stance_prediction/Stance_prediction/Wahlprogramme/linke 2021.xlsx')['text']
+linke = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/linke 2021.xlsx')['text']
 linke_tok = get_sent_list(linke)
-spd = pd.read_excel(r'stance_prediction/Stance_prediction/Wahlprogramme/spd 2021.xlsx')['text']
+spd = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/spd 2021.xlsx')['text']
 spd_tok = get_sent_list(spd)
-cdu = pd.read_excel(r'stance_prediction/Stance_prediction/Wahlprogramme/cdu 2021.xlsx')['text']
+cdu = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/cdu 2021.xlsx')['text']
 cdu_tok = get_sent_list(cdu)
-afd = pd.read_excel(r'stance_prediction/Stance_prediction/Wahlprogramme/afd 2021.xlsx')['text']
+afd = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/afd 2021.xlsx')['text']
 afd_tok = get_sent_list(afd)
 
 # get similarity from sBERT
