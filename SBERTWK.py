@@ -89,14 +89,8 @@ model.to(params["device"])
 
 # -----------------------------------------------
 
-#sentence1 = input("\nEnter the first sentence: ")
-#sentence2 = input("Enter the second sentence: ")
-
-#sentences = [sentence1, sentence2]
-
-#print("The two sentences we have are:", sentences)
-
 sentences = grüne_tok
+random.shuffle(sentences)
 
 # -----------------------------------------------
 sentences_index = [tokenizer.encode(s, add_special_tokens=True) for s in sentences]
@@ -120,15 +114,25 @@ for sent_ids in sentences_index:
 
 features_mask = np.array(features_mask)
 
-batch_input_ids = torch.tensor(features_input_ids, dtype=torch.long)
-batch_input_mask = torch.tensor(features_mask, dtype=torch.long)
-batch = [batch_input_ids.to(device), batch_input_mask.to(device)]
+# create and go through the batches
+pos = 0
+while pos<len(sentences):
+    # `to_take` is our actual batch size. It will be `batch_size` until 
+    # we get to the last batch, which may be smaller. 
+    to_take = min(params["batch_size"], len(sentences)-pos)
+    batch_input_ids = torch.tensor(features_input_ids[pos:(pos+to_take)], dtype=torch.long)
+    batch_input_mask = torch.tensor(features_mask[pos:(pos+to_take)], dtype=torch.long)
+    batch = [batch_input_ids.to(device), batch_input_mask.to(device)]
 
-inputs = {"input_ids": batch[0], "attention_mask": batch[1]}
-model.zero_grad()
+    inputs = {"input_ids": batch[0], "attention_mask": batch[1]}
+    model.zero_grad()
 
-with torch.no_grad(): #TODO fix this problem
-    features = model(**inputs)[1]
+    with torch.no_grad(): #TODO fix this problem
+        features = model(**inputs)[1]
+
+    pos = (pos + to_take)-1
+
+
 
 # Reshape features from list of (batch_size, seq_len, hidden_dim) for each hidden state to list
 # of (num_hidden_states, seq_len, hidden_dim) for each element in the batch.
