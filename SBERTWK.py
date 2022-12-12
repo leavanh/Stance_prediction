@@ -29,7 +29,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--max_seq_length",
-    default=128,
+    default=512, #longest sentence in afd is 659, if not 512 error later on
     type=int,
     help="The maximum total input sequence length after tokenization. Sequences longer "
     "than this will be truncated, sequences shorter will be padded.",
@@ -46,23 +46,20 @@ parser.add_argument(
 parser.add_argument(
     "--embed_method",
     type=str,
-    default="ave_last_hidden",
+    default="ave_last_hidden", #no info in paper, leave default
     help="Choice of method to obtain embeddings (default: 'ave_last_hidden')",
 )
 parser.add_argument(
     "--context_window_size",
     type=int,
-    default=2,
+    default=2, #leave default, explained in paper
     help="Topological Embedding Context Window Size (default: 2)",
 )
 parser.add_argument(
     "--layer_start",
     type=int,
-    default=4,
+    default=4, #leave default, explained in paper
     help="Starting layer for fusion (default: 4)",
-)
-parser.add_argument(
-    "--tasks", type=str, default="all", help="choice of tasks to evaluate on"
 )
 args = parser.parse_args()
 
