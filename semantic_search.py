@@ -47,6 +47,10 @@ cdu_tok = get_sent_list(cdu)
 afd = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/afd 2021.xlsx')['text']
 afd_tok = get_sent_list(afd)
 
+# make one excel with all sentences
+all_tok = [*grüne_tok, *fdp_tok, *linke_tok, *spd_tok, *cdu_tok, *afd_tok]
+pd.DataFrame(all_tok).to_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx', header=False, index=False)
+
 # get similarity from sBERT
 query = "Nahverkehr soll für alle Personen umsonst sein."
 
