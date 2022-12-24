@@ -1,9 +1,13 @@
-from Bert_Flow_utils import TransformerGlow, AdamWeightDecayOptimizer
+import sys
 from transformers import AutoTokenizer
 import random
 import pandas as pd
+from sentence_transformers import util
 
-all_tok = pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx')
+sys.path.append('/home/ubuntu/thesis/stance_prediction/Stance_prediction')
+from Bert_Flow_utils import TransformerGlow, AdamWeightDecayOptimizer
+
+all_tok = list(pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx')[0])
 
 model_name_or_path = 'bert-base-german-cased'
 bertflow = TransformerGlow(model_name_or_path, pooling='first-last-avg')  # pooling could be 'mean', 'max', 'cls' or 'first-last-avg' (mean pooling over the first and the last layers)
@@ -28,7 +32,6 @@ optimizer = AdamWeightDecayOptimizer(
 )
 
 # Important: Remember to shuffle your training data!!! This makes a huge difference!!!
-# sentences = ['This is sentence A.', 'And this is sentence B.']  # Please replace this with your datasets (single sentences).
 sentences = random.sample(all_tok, len(all_tok))
 model_inputs = tokenizer(
     sentences,
@@ -48,3 +51,21 @@ bertflow.save_pretrained('output')  # Save model
 bertflow = TransformerGlow.from_pretrained('output')  # Load model
 
 # I've got embeddings for all sentences, how do I get one for a new sentence without retraining the model?
+query = "Studierende sollen elternunabhägiges Bafög bekommen."
+model_input = tokenizer(
+    query,
+    add_special_tokens=True,
+    return_tensors='pt',
+    max_length=659, # longest sentence
+    padding='longest',
+    truncation=True
+)
+
+query_embedding = bertflow(model_input['input_ids'], model_input['attention_mask'])
+
+# get similarity
+similarity = util.dot_score(query_embedding, z)
+value, index = torch.topk(similarity, 5)
+[all_tok[i] for i in index.tolist()[0]]
+
+# doesn't seem to be working to well tbh
