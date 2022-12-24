@@ -3,6 +3,7 @@ from transformers import AutoTokenizer
 import random
 import pandas as pd
 from sentence_transformers import util
+import torch
 
 sys.path.append('/home/ubuntu/thesis/stance_prediction/Stance_prediction')
 from Bert_Flow_utils import TransformerGlow, AdamWeightDecayOptimizer
@@ -47,11 +48,13 @@ optimizer.zero_grad()
 loss.backward()
 optimizer.step()
 
-bertflow.save_pretrained('output')  # Save model
-bertflow = TransformerGlow.from_pretrained('output')  # Load model
+bertflow.save_pretrained('/home/ubuntu/thesis/stance_prediction/Stance_prediction/bert-flow-model')  # Save model
+bertflow = TransformerGlow.from_pretrained('/home/ubuntu/thesis/stance_prediction/Stance_prediction/bert-flow-model')  # Load model
 
 # I've got embeddings for all sentences, how do I get one for a new sentence without retraining the model?
+# I think this retrains the model
 query = "Studierende sollen elternunabhägiges Bafög bekommen."
+query = "Bestandsanlagen dürfen weiter betrieben werden."
 model_input = tokenizer(
     query,
     add_special_tokens=True,
@@ -68,4 +71,5 @@ similarity = util.dot_score(query_embedding, z)
 value, index = torch.topk(similarity, 5)
 [all_tok[i] for i in index.tolist()[0]]
 
-# doesn't seem to be working to well tbh
+# doesn't seem to be working too well tbh
+sentence_embeddings = bertflow(model_inputs['input_ids'], model_inputs['attention_mask'])
