@@ -161,9 +161,21 @@ for epoch in range(params["num_epochs"]):
 
 # -----------------------------------------------
 # Compute similarity
-similarity = (
-    embedding[0].dot(embedding[1])
-    / np.linalg.norm(embedding[0])
-    / np.linalg.norm(embedding[1])
-)
-print("The similarity between these two sentences are (from 0-1):", similarity)
+# TODO: not working and also problem how to save model and don't retrain.
+query = ["Öffentlicher Nahverkehr soll für alle Personen umsonst sein."]
+
+query_input_ids, query_mask = trun_pad(query)
+
+query_inputs = {"input_ids": torch.tensor(query_input_ids, dtype=torch.long).to(device), "attention_mask": torch.tensor(query_mask, dtype=torch.long).to(device)}
+model.zero_grad()
+
+with torch.no_grad():
+    features = model(**query_inputs)[1]
+
+query_all_layer_embedding = torch.stack(features).permute(1, 0, 2, 3).cpu().numpy()
+
+embed_method = SBERTWK_utils.generate_embedding(params["embed_method"], features_mask)
+query_embedding = embed_method.embed(params, query_all_layer_embedding)
+
+len(query_embedding)
+
