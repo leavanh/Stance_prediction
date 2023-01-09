@@ -127,3 +127,10 @@ with gzip.open(sts_dataset_path, 'rt', encoding='utf8') as fIn:
 model = SentenceTransformer(model_save_path)
 test_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(test_samples, batch_size=train_batch_size, name='sts-test')
 test_evaluator(model, output_path=model_save_path)
+
+embeddings = model.encode(sentences)
+len(sentences)
+embeddings.shape
+sentence = sentences[0]
+embedding = model.encode(sentence)
+embedding == embeddings[0] # why not?
