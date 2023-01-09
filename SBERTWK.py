@@ -11,7 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 import random
 
 from transformers import AutoConfig, AutoTokenizer, AutoModelWithLMHead
-sys.path.append('/home/ubuntu/thesis/stance_prediction/Stance_prediction')
+sys.path.append('/home/ubuntu/lrz/thesis/Stance_prediction')
 import SBERTWK_utils
 
 
@@ -121,7 +121,7 @@ model.to(params["device"])
 class Manifestos(Dataset):
     def __init__(self):
         # data loading
-        self.sentences = list(pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx')[0])
+        self.sentences = list(pd.read_excel(r'/home/ubuntu/lrz/thesis/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx')[0])
         random.shuffle(self.sentences)
         self.n_samples = len(self.sentences)
 
