@@ -128,9 +128,9 @@ model = SentenceTransformer(model_save_path)
 test_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(test_samples, batch_size=train_batch_size, name='sts-test')
 test_evaluator(model, output_path=model_save_path)
 
-embeddings = model.encode(sentences)
+embeddings = model.encode(sentences, convert_to_numpy = True)
 len(sentences)
 embeddings.shape
-sentence = sentences[0]
-embedding = model.encode(sentence)
-embedding == embeddings[0] # why not?
+sentence = sentences[:-1]
+embedding = model.encode(sentence, convert_to_numpy = True)
+embedding == embeddings[:-1] # very weird behaviour, some embeddings are the same and some are not
