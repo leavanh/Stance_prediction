@@ -9,6 +9,7 @@ import argparse
 import torch
 from torch.utils.data import Dataset, DataLoader
 import random
+import pickle
 
 from transformers import AutoConfig, AutoTokenizer, AutoModelWithLMHead
 sys.path.append('/home/ubuntu/lrz/thesis/Stance_prediction')
@@ -159,23 +160,28 @@ for epoch in range(params["num_epochs"]):
         embedding = embed_method.embed(params, all_layer_embedding)
         embeddings.extend(list(embedding))
 
+with open("Stance_prediction/Embeddings/all_sbertwk", "wb") as fp:   # Save the embeddings
+    pickle.dump(embeddings, fp)
+
 # -----------------------------------------------
 # Compute similarity
-# TODO: not working and also problem how to save model and don't retrain.
+
+with open("Stance_prediction/Embeddings/all_sbertwk", "rb") as fp:   # Open the saved embeddings
+    embeddings = pickle.load(fp)
+
 query = ["Öffentlicher Nahverkehr soll für alle Personen umsonst sein."]
+query = ['Produkte müssen so gestaltet werden, dass man sie wiederverwenden, recyceln und auch reparieren kann.']
 
 query_input_ids, query_mask = trun_pad(query)
 
 query_inputs = {"input_ids": torch.tensor(query_input_ids, dtype=torch.long).to(device), "attention_mask": torch.tensor(query_mask, dtype=torch.long).to(device)}
-model.zero_grad()
 
-with torch.no_grad():
-    features = model(**query_inputs)[1]
+query_features = model(**query_inputs)[1]
 
-query_all_layer_embedding = torch.stack(features).permute(1, 0, 2, 3).cpu().numpy()
+query_all_layer_embedding = torch.stack(query_features).permute(1, 0, 2, 3).cpu().detach().numpy()
 
-embed_method = SBERTWK_utils.generate_embedding(params["embed_method"], features_mask)
-query_embedding = embed_method.embed(params, query_all_layer_embedding)
+embed_method = SBERTWK_utils.generate_embedding(params["embed_method"], query_mask)
+query_embedding = embed_method.embed(params, query_all_layer_embedding)[0]
 
 len(query_embedding)
 
