@@ -41,7 +41,7 @@ model_inputs = tokenizer(
     sentences,
     add_special_tokens=True,
     return_tensors='pt',
-    max_length=512, # longest sentence
+    max_length=218, # so process doesn't get killed, maybe fix with batching
     padding='max_length',
     truncation=True
 )
@@ -70,17 +70,19 @@ with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_sen
 
 query = ["Studierende sollen elternunabhägiges Bafög bekommen."]
 query = ['Das über einen Zeitraum von 30 Jahren angekündigte Programm zum Wiederaufbau und zur Entwicklung ist keine Entschädigungsleistung, sondern muss als technische Entwicklungshilfe bewertet werden.']
+
 model_input = tokenizer(
     query,
     add_special_tokens=True,
     return_tensors='pt',
-    max_length=512, # so it's the same length as the other sentences
-    padding='max_length', # so it's the same length as the other sentences
+    max_length=218, # so it's the same length as the other sentences
+    padding='max_length', 
     truncation=True
 )
 
 query_embedding = bertflow(model_input['input_ids'], model_input['attention_mask'])
-
+query_embedding[0]
+embeddings[0]
 # get similarity
 similarity = util.dot_score(query_embedding, embeddings)
 value, index = torch.topk(similarity, 5)
