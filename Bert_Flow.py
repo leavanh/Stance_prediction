@@ -4,11 +4,14 @@ import random
 import pandas as pd
 from sentence_transformers import util
 import torch
+import pickle
 
-sys.path.append('/home/ubuntu/thesis/stance_prediction/Stance_prediction')
+sys.path.append('/home/ubuntu/lrz/thesis/Stance_prediction')
 from Bert_Flow_utils import TransformerGlow, AdamWeightDecayOptimizer
 
-all_tok = list(pd.read_excel(r'/home/ubuntu/thesis/stance_prediction/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx')[0])
+random.seed(910)
+
+all_tok = list(pd.read_excel(r"/home/ubuntu/lrz/thesis/Stance_prediction/Wahlprogramme/alle_tokenized.xlsx")[0])
 
 model_name_or_path = 'bert-base-german-cased'
 bertflow = TransformerGlow(model_name_or_path, pooling='first-last-avg')  # pooling could be 'mean', 'max', 'cls' or 'first-last-avg' (mean pooling over the first and the last layers)
@@ -38,8 +41,8 @@ model_inputs = tokenizer(
     sentences,
     add_special_tokens=True,
     return_tensors='pt',
-    max_length=659, # longest sentence
-    padding='longest',
+    max_length=512, # longest sentence
+    padding='max_length',
     truncation=True
 )
 bertflow.train()
@@ -48,28 +51,37 @@ optimizer.zero_grad()
 loss.backward()
 optimizer.step()
 
-bertflow.save_pretrained('/home/ubuntu/thesis/stance_prediction/Stance_prediction/bert-flow-model')  # Save model
-bertflow = TransformerGlow.from_pretrained('/home/ubuntu/thesis/stance_prediction/Stance_prediction/bert-flow-model')  # Load model
+bertflow.save_pretrained('/home/ubuntu/lrz/thesis/Stance_prediction/Models/bert-flow-model')  # Save model
 
-# I've got embeddings for all sentences, how do I get one for a new sentence without retraining the model?
-# I think this retrains the model
-query = "Studierende sollen elternunabhägiges Bafög bekommen."
-query = "Bestandsanlagen dürfen weiter betrieben werden."
+with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_embeddings", "wb") as fp:   # Save the embeddings
+    pickle.dump(z, fp)
+
+with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_sentences", "wb") as fp:   # Save the sentences
+    pickle.dump(sentences, fp)
+
+
+bertflow = TransformerGlow.from_pretrained('/home/ubuntu/lrz/thesis/Stance_prediction/Models/bert-flow-model')  # Load model
+
+with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_embeddings", "rb") as fp:   # Open the saved embeddings
+    embeddings = pickle.load(fp)
+
+with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_sentences", "rb") as fp:   # Open the saved embeddings
+    sentences = pickle.load(fp)
+
+query = ["Studierende sollen elternunabhägiges Bafög bekommen."]
+query = ['Das über einen Zeitraum von 30 Jahren angekündigte Programm zum Wiederaufbau und zur Entwicklung ist keine Entschädigungsleistung, sondern muss als technische Entwicklungshilfe bewertet werden.']
 model_input = tokenizer(
     query,
     add_special_tokens=True,
     return_tensors='pt',
-    max_length=659, # longest sentence
-    padding='longest',
+    max_length=512, # so it's the same length as the other sentences
+    padding='max_length', # so it's the same length as the other sentences
     truncation=True
 )
 
 query_embedding = bertflow(model_input['input_ids'], model_input['attention_mask'])
 
 # get similarity
-similarity = util.dot_score(query_embedding, z)
+similarity = util.dot_score(query_embedding, embeddings)
 value, index = torch.topk(similarity, 5)
 [all_tok[i] for i in index.tolist()[0]]
-
-# doesn't seem to be working too well tbh
-sentence_embeddings = bertflow(model_inputs['input_ids'], model_inputs['attention_mask'])
