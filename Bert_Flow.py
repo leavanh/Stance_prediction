@@ -37,6 +37,10 @@ optimizer = AdamWeightDecayOptimizer(
 
 # Important: Remember to shuffle your training data!!! This makes a huge difference!!!
 sentences = random.sample(all_tok, len(all_tok))
+
+with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_sentences", "wb") as fp:   # Save the sentences
+    pickle.dump(sentences, fp)
+
 model_inputs = tokenizer(
     sentences,
     add_special_tokens=True,
@@ -53,14 +57,15 @@ optimizer.step()
 
 bertflow.save_pretrained('/home/ubuntu/lrz/thesis/Stance_prediction/Models/bert-flow-model')  # Save model
 
-with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_embeddings", "wb") as fp:   # Save the embeddings
-    pickle.dump(z, fp)
-
-with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_sentences", "wb") as fp:   # Save the sentences
-    pickle.dump(sentences, fp)
-
-
 bertflow = TransformerGlow.from_pretrained('/home/ubuntu/lrz/thesis/Stance_prediction/Models/bert-flow-model')  # Load model
+
+embeddings = bertflow(model_inputs['input_ids'], model_inputs['attention_mask'], return_loss=False)
+
+with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_embeddings", "wb") as fp:   # Save the embeddings
+    pickle.dump(embeddings, fp)
+
+
+# -----------------------------
 
 with open("/home/ubuntu/lrz/thesis/Stance_prediction/Embeddings/all_bertflow_embeddings", "rb") as fp:   # Open the saved embeddings
     embeddings = pickle.load(fp)
